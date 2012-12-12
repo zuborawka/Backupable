@@ -49,24 +49,25 @@ CakePlugin::load('Backupable');
 
 ##<a name="section5">5.API and usage.
 
-##BackupableBehavior's API
+###API
 
-###backup()
+####BackupableBehavior::backup()
 * Backup current record.
 * By default, this method is called automaticaly after save data.
 
-###history()
+####BackupableBehavior::history()
 * It returns the history of backups.
 * The result includes backups' IDs and created times from latest to earliest by default.
 
-###remember()
+####BackupableBehavior::remember()
 * It returns backup data.
 * If the table name, source id and backup id are not matched, it returns false.
 
-###restore()
+####BackupableBehavior::restore()
 * It restores the record by backup data.
 * If the table name, source id and backup id are not matched, it returns false.
 
+---
 ###Usage
 
 ````php:app/Controller/PostsController.php
