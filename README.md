@@ -159,7 +159,7 @@ You can set 3 options.
 * "autoSave" boolean default true
 * "skipSame" boolean default true
 
-eg.)
+e.g.)
 
 ````app/Model/Post.php
 /**
