@@ -1,10 +1,10 @@
 <?php
-App::uses('BackuppableAppModel', 'Backuppable.Model');
+App::uses('BackupableAppModel', 'Backupable.Model');
 /**
  * Backup Model
  *
  */
-class Backup extends BackuppableAppModel {
+class Backup extends BackupableAppModel {
 
 /**
  * Display field

@@ -1,13 +1,13 @@
 <?php
 
 App::uses('AppModel', 'Model');
-CakePlugin::load('Backuppable');
+CakePlugin::load('Backupable');
 
 class Sample extends AppModel
 {
 
 	public $actsAs = array(
-		'Backuppable.Backuppable' => array(
+		'Backupable.Backupable' => array(
 			'backupFields' => array(
 				'title', 'message', 'user_id',
 			),
