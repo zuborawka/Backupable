@@ -17,7 +17,10 @@ But this plugin is more simple and fewer function.
 6. [Some options](#section6)
 
 ##<a name="section1">1.Set files into your plugin directory.
-app/Plugin/Backupable
+- app/Plugin/Backupable/Model/BackupableAppModel.php
+- app/Plugin/Backupable/Model/Backup.php
+- app/Plugin/Backupable/Model/Behavior/BackupableBehavior.php
+
 
 ##<a name="section2">2.Create a table for backup records.
 
