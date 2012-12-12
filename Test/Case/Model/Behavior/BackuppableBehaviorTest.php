@@ -81,7 +81,7 @@ class BackuppableBehaviorTest extends CakeTestCase
 		$lastBackup = $this->Sample->rememberLast();
 
 		$expected = array_pop($messages);
-		$result = $lastBackup['message'];
+		$result = $lastBackup['Backup']['data']['message'];
 
 		$this->assertEquals($expected, $result);
 	}
@@ -196,7 +196,7 @@ class SampleSkipSame extends Sample
 
 	public $useTable = 'samples';
 
-	public $backup = array(
+	public $backupConfig = array(
 		'skipSame' => true,
 	);
 }

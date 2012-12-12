@@ -10,14 +10,6 @@ class BackuppableBehavior extends ModelBehavior
 	public $mapMethods = array();
 
 /**
- * The model behaves backuppable must have these properties.
- * @var array
- */
-	protected $_requireProperties = array(
-		'backupFields',
-	);
-
-/**
  * The model could hold these properties for the behavior.
  * The key is property name, the value is default value.
  * @var array
@@ -42,21 +34,25 @@ class BackuppableBehavior extends ModelBehavior
 
 	public function setup(Model $model, $config = array()) {
 
-		foreach ($this->_requireProperties as $prop) {
-			if (!isset($config[$prop])) {
-				if (!isset($model->backup[$prop])) {
-					throw new InvalidArgumentException(__('"' . $prop . '" of ' . $model->alias . '\'s property was missing.'));
-				}
-				$config[$prop] = $model->backup[$prop];
-			}
+		if (isset($model->backupConfig) && is_array($model->backupConfig)) {
+			$_config = array_merge(
+				$this->_optionProperties,
+				$model->backupConfig
+			);
+		} else {
+			$_config = $this->_optionProperties;
 		}
 
-		$config['backupFields'] = (array)$config['backupFields'];
+		$config = array_merge($_config, $config);
+
+		if (empty($config['backupFields'])) {
+			$config['backupFields'] = array_keys($model->schema());
+		}
 
 		foreach ($this->_optionProperties as $prop => $default) {
 			if (!isset($config[$prop]) && isset($model->backup[$prop])) {
 				$config[$prop] = $model->backup[$prop];
-			} else {
+			} elseif (!isset($config[$prop])) {
 				$config[$prop] = $default;
 			}
 		}
@@ -155,7 +151,10 @@ class BackuppableBehavior extends ModelBehavior
 		);
 
 		if ($settings['skipSame']) {
-			$last = serialize($this->rememberLast($model, $options));
+			$last = $this->rememberLast($model, $options);
+			if (isset($last['Backup']['data'])) {
+				$last = serialize($last['Backup']['data']);
+			}
 			if ($last === $serialized) {
 				return false;
 			}
@@ -218,14 +217,14 @@ class BackuppableBehavior extends ModelBehavior
 			'Backup.table_name' => $table,
 			'Backup.src_id' => $id,
 		);
-		$fields = array('data');
+		$fields = array('data', 'created');
 		$data = $this->Backup->find('first', compact('conditions', 'fields'));
 		if (empty($data)) {
 			return array();
 		}
-		$remember = unserialize($data['Backup']['data']);
-		$remember[$model->primaryKey] = $id;
-		return $remember;
+		$data['Backup']['data'] = unserialize($data['Backup']['data']);
+		$data['Backup']['data'][$model->primaryKey] = $id;
+		return $data;
 	}
 
 /**
@@ -246,7 +245,8 @@ class BackuppableBehavior extends ModelBehavior
 		if (empty($lastBackup['Backup']['data'])) {
 			return array();
 		}
-		return unserialize($lastBackup['Backup']['data']);
+		$lastBackup['Backup']['data'] = unserialize($lastBackup['Backup']['data']);
+		return $lastBackup;
 	}
 
 /**
@@ -264,12 +264,12 @@ class BackuppableBehavior extends ModelBehavior
 		if (empty($restore)) {
 			return false;
 		}
-		$model->id = $restore[$model->primaryKey];
-		return $model->save(array($model->alias => $restore));
+		$model->id = $restore['Backup']['data'][$model->primaryKey];
+		return $model->save(array($model->alias => $restore['Backup']['data']));
 	}
 
 	protected function _getSrcId(Model $model, $options = array()) {
-		if (is_int($options)) {
+		if (is_int($options) || is_string($options)) {
 			$id = $options;
 		} elseif (isset($options['id'])) {
 			$id = $options['id'];
