@@ -7,13 +7,6 @@
 class SampleFixture extends CakeTestFixture {
 
 /**
- * Import
- *
- * @var array
- */
-	public $import = array('records' => false);
-
-/**
  * Fields
  *
  * @var array
