@@ -32,7 +32,7 @@ CREATE TABLE `backups` (
   KEY `table_and_src_id` (`table_name`,`src_id`,`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 ````
-This table relates Backup model.
+This table is associated with Backup class.
 So, you can change the table name by setting in Backupable/Model/Backup.php.
 
 ##<a name="section3">3.Set your bootstrap.php to load plugin.
