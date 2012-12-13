@@ -8,16 +8,19 @@ class BackupableBehaviorTest extends CakeTestCase
 	public $Sample = null;
 	public $SampleRecord = null;
 	public $SampleNotSkipSame = null;
+	public $AnotherSample = null;
 
 	public $fixtures = array(
 		'plugin.Backupable.backup',
 		'plugin.Backupable.sample',
+		'plugin.Backupable.another_sample',
 	);
 
 	public function setUp()
 	{
 		parent::setUp();
 		$this->Sample = ClassRegistry::init('Backupable.Sample');
+		$this->AnotherSample = ClassRegistry::init('Backupable.AnotherSample');
 		$this->SampleRecord = new SampleRecord();
 	}
 
@@ -142,6 +145,48 @@ class BackupableBehaviorTest extends CakeTestCase
 		$result = count($history);
 		$this->assertEquals($expected, $result);
 	}
+
+	public function testMulitipleModelsAccess()
+	{
+		$messages = array(
+			'message1',
+			'message2',
+			'message3',
+		);
+
+		$anotherMessages = array(
+			'anotherMessage1',
+			'anotherMessage2',
+			'anotherMessage3',
+		);
+
+		$this->Sample->create();
+		$this->AnotherSample->create();
+
+		for ($i = 0; $i < 3; $i++) {
+			$Sample = $this->SampleRecord->create(array('id' => 1, 'message' => $messages[$i]));
+			$this->Sample->save(compact('Sample'));
+
+			$AnotherSample = $this->SampleRecord->create(array('id' => 1, 'message' => $anotherMessages[$i]));
+			$this->AnotherSample->save(compact('AnotherSample'));
+		}
+
+		$history = $this->Sample->history();
+		$oldest = array_pop($history);
+		$this->Sample->restore(array('backupId' => $oldest['Backup']['id']));
+		$rec = $this->Sample->read();
+		$expected = $messages[0];
+		$result = $rec['Sample']['message'];
+		$this->assertEquals($expected, $result);
+
+		$history = $this->AnotherSample->history();
+		$oldest = array_pop($history);
+		$this->AnotherSample->restore(array('backupId' => $oldest['Backup']['id']));
+		$rec = $this->AnotherSample->read();
+		$expected = $anotherMessages[0];
+		$result = $rec['AnotherSample']['message'];
+		$this->assertEquals($expected, $result);
+	}
 }
 
 /**
@@ -197,4 +242,12 @@ class SampleNotSkipSame extends Sample
 	public $backupConfig = array(
 		'skipSame' => false,
 	);
+}
+
+/**
+ * AnotherSample
+ */
+class AnotherSample extends Sample
+{
+	public $useTable = 'another_samples';
 }
