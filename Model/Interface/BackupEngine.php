@@ -3,7 +3,7 @@
 interface BackupEngine {
 
 /**
- * backup the record
+ * It must backup the record.
  *
  * @param Model
  * @param array
@@ -12,8 +12,30 @@ interface BackupEngine {
 	public function backup(Model $model, $options = array());
 
 /**
- * Get the history of record.
- * It returns a list of Backup's id and created time from latest to earliest by default.
+ * It must return the history of record.
+ * It must return a list of backup's id and created time like below sample from latest to earliest by default.
+ * The result can also includes other data.
+ *
+ * array(
+ *    array(
+ *        {BackupEngineAlias} => array(
+ *            'id' =>      {id},
+ *            'created' => {yyyy-mm-dd hh:ii:ss}
+ *        )
+ *    ),
+ *    array(
+ *        {BackupEngineAlias} => array(
+ *            'id' =>      {id},
+ *            'created' => {yyyy-mm-dd hh:ii:ss}
+ *        )
+ *    ),
+ *    array(
+ *        {BackupEngineAlias} => array(
+ *            'id' =>      {id},
+ *            'created' => {yyyy-mm-dd hh:ii:ss}
+ *        )
+ *    ),
+ * )
  *
  * Options:
  *    limit, page, order, fields
@@ -24,8 +46,7 @@ interface BackupEngine {
 	public function history(Model $model, $options = array());
 
 /**
- * Get backup data.
- * If the table name, source id and backup id are not matched, it returns false.
+ * It must return backup data appointed by options and model's id.
  *
  * Options:
  *   'backupId' -- required
@@ -37,7 +58,7 @@ interface BackupEngine {
 	public function remember(Model $model, $options = array());
 
 /**
- * Get the last backup data
+ * It must return the last backup data
  *
  * @param Model
  * @param array
@@ -46,8 +67,8 @@ interface BackupEngine {
 	public function rememberLast(Model $model, $options = array());
 
 /**
- * Restore the record by backup data.
- * If the table name, source id and backup id are not matched, it returns false.
+ * It must restore the record by backup data.
+ *
  * Options:
  *   'backupId' -- required
  *   'id' -------- option (if it is empty, the method searches $model->id)
