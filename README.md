@@ -38,6 +38,7 @@ CREATE TABLE `backups` (
 ````
 This table is associated with BasicBackup class.
 So, you can change the table name by setting in Backupable/Model/BasicBackup.php.
+And you can also use your own BackupEngine, if it implements BacupEngine interface.
 
 ##<a name="section3">3.Set your bootstrap.php to load plugin.
 
@@ -157,11 +158,13 @@ echo $this->Html->link(
 ````
 
 ##<a name="section6">6.Some options.
-You can set 3 options.
+You can set 5 options.
 
 * "backupFields" array default null. Null means all fields.
 * "autoSave" boolean default true
 * "skipSame" boolean default true
+* "backupEngineClass" string default "Backupable.BasicBackup".
+* "backupEngineAlias" string default "Backup"
 
 e.g.)
 
@@ -175,6 +178,8 @@ public $actsAs = array(
         'backupFields' => array('title', 'content'),
         'autoSave' => false,
         'skipSame' => false,
+        'backupEngineClass' => 'MyCoolBackup',
+        'backupEngineAlias' => 'SoCoolBackup',
     ),
 );
 ````
