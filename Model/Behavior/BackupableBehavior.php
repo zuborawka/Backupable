@@ -10,6 +10,7 @@ class BackupableBehavior extends ModelBehavior
 	public $settings = array();
 	public $mapMethods = array();
 	public $backupEngineClass = 'Backupable.BasicBackup';
+	public $backupEngineAlias = 'Backup';
 
 /**
  * The model could hold these properties for the behavior.
@@ -42,7 +43,12 @@ class BackupableBehavior extends ModelBehavior
 			if (is_string($class)) {
 				$class = array('class' => $class);
 			}
-			$class['alias'] = 'Backup';
+			if (empty($class['alias'])) {
+				if (! ($alias = Configure::read('Backupable.BackupEngineAlias'))) {
+					$alias = $this->backupEngineAlias;
+				}
+				$class['alias'] = $alias;
+			}
 			$backupEngine = ClassRegistry::init($class);
 			if (! $backupEngine instanceof BackupEngine) {
 				throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
