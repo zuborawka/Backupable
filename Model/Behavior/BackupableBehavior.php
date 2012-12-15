@@ -1,4 +1,5 @@
 <?php
+App::uses('BackupEngine', 'Backupable.Model/Interface');
 
 /**
  * Backup utility behavior based on table name and fields.
@@ -8,13 +9,14 @@ class BackupableBehavior extends ModelBehavior
 
 	public $settings = array();
 	public $mapMethods = array();
+	public $backupEngineClass = 'Backupable.BasicBackup';
 
 /**
  * The model could hold these properties for the behavior.
  * The key is property name, the value is default value.
  * @var array
  */
-	protected $_optionProperties = array(
+	protected $_defaultOptionProperties = array(
 		'autoBackup' => true,
 		'skipSame' => true,
 	);
@@ -27,8 +29,25 @@ class BackupableBehavior extends ModelBehavior
 
 	public function __get($name) {
 		if ($name === 'Backup') {
-			$this->Backup = ClassRegistry::init('Backupable.Backup');
+			$this->Backup = $this->_getBackupEngine();
 			return $this->Backup;
+		}
+	}
+
+	protected function _getBackupEngine($class = null) {
+		if (!$class) {
+			if (! ($class = Configure::read('Backupable.BackupEngine'))) {
+				$class = $this->backupEngineClass;
+			}
+			if (is_string($class)) {
+				$class = array('class' => $class);
+			}
+			$class['alias'] = 'Backup';
+			$backupEngine = ClassRegistry::init($class);
+			if (! $backupEngine instanceof BackupEngine) {
+				throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
+			}
+			return $backupEngine;
 		}
 	}
 
@@ -42,11 +61,11 @@ class BackupableBehavior extends ModelBehavior
 
 		if (isset($model->backupConfig) && is_array($model->backupConfig)) {
 			$_config = array_merge(
-				$this->_optionProperties,
+				$this->_defaultOptionProperties,
 				$model->backupConfig
 			);
 		} else {
-			$_config = $this->_optionProperties;
+			$_config = $this->_defaultOptionProperties;
 		}
 
 		$config = array_merge($_config, $config);
@@ -55,7 +74,7 @@ class BackupableBehavior extends ModelBehavior
 			$config['backupFields'] = array_keys($model->schema());
 		}
 
-		foreach ($this->_optionProperties as $prop => $default) {
+		foreach ($this->_defaultOptionProperties as $prop => $default) {
 			if (!isset($config[$prop]) && isset($model->backup[$prop])) {
 				$config[$prop] = $model->backup[$prop];
 			} elseif (!isset($config[$prop])) {
@@ -84,55 +103,19 @@ class BackupableBehavior extends ModelBehavior
 	}
 
 /**
- * backup the record
+ * wrapper of BackupEngine::backup()
  *
  * @param Model
  * @param array
  * @return array|false Created data. If it could not get ID, it returns false.
  */
 	public function backup(Model $model, $options = array()) {
-
-		list($id, $table) = $this->_getSrcIdAndTableName($model, $options);
-		if (! $model->exists($id)) {
-			return array();
-		}
-
-		$settings = $this->settings[$model->alias];
-
-		$fields = $settings['backupFields'];
-		$conditions = array($model->alias . '.' . $model->primaryKey => $id);
-		$model->recursive = -1;
-		$data = $model->find('first', compact('fields', 'conditions'));
-
-		$serialized = serialize($data[$model->alias]);
-
-		$backupData = array(
-			'Backup' => array(
-				'id' => null,
-				'table_name' => $table,
-				'src_id' => $id,
-				'data' => $serialized,
-			),
-		);
-
-		if ($settings['skipSame']) {
-			$last = $this->rememberLast($model, $options);
-			if (isset($last['Backup']['data'])) {
-				$last = serialize($last['Backup']['data']);
-			}
-			if ($last === $serialized) {
-				return false;
-			}
-		}
-
-		$this->Backup->create();
-		$res = $this->Backup->save($backupData);
-		return $res;
+		$options['settings'] = $this->settings[$model->alias];
+		return $this->Backup->backup($model, $options);
 	}
 
 /**
- * Get the history of record.
- * It returns a list of Backup's id and created time from latest to earliest by default.
+ * wrapper of BackupEngine::history()
  *
  * Options:
  *    limit, page, order, fields
@@ -141,29 +124,11 @@ class BackupableBehavior extends ModelBehavior
  * @return array
  */
 	public function history(Model $model, $options = array()) {
-		// default options are
-		$limit = 20;
-		$page = 1;
-		$order = 'Backup.id DESC';
-		$fields = array('id', 'created');
-
-		if (is_array($options)) {
-			extract($options);
-		}
-
-		list($id, $table) = $this->_getSrcIdAndTableName($model, $options);
-		$conditions = array(
-			'Backup.table_name' => $table,
-			'Backup.src_id' => $id,
-		);
-		$recursive = -1;
-		$history = $this->Backup->find('all', compact('conditions', 'fields', 'order', 'limit', 'page', 'recursive'));
-		return $history;
+		return $this->Backup->history($model, $options);
 	}
 
 /**
- * Get backup data.
- * If the table name, source id and backup id are not matched, it returns false.
+ * wrapper of BackupEngine::remember()
  *
  * Options:
  *   'backupId' -- required
@@ -173,52 +138,23 @@ class BackupableBehavior extends ModelBehavior
  * @param array
  */
 	public function remember(Model $model, $options = array()) {
-		if (isset($options['backupId'])) {
-			$backupId = $options['backupId'];
-		} else {
-			return false;
-		}
-		list($id, $table) = $this->_getSrcIdAndTableName($model, $options);
-		$conditions = array(
-			'Backup.id' => $backupId,
-			'Backup.table_name' => $table,
-			'Backup.src_id' => $id,
-		);
-		$fields = array('data', 'created');
-		$data = $this->Backup->find('first', compact('conditions', 'fields'));
-		if (empty($data)) {
-			return array();
-		}
-		$data['Backup']['data'] = unserialize($data['Backup']['data']);
-		$data['Backup']['data'][$model->primaryKey] = $id;
-		return $data;
+		return $this->Backup->remember($model, $options);
 	}
 
 /**
- * Get the last backup data
+ * wrapper of BackupEngine::rememberLast
  *
  * @param Model
  * @param array
  * @return array
  */
 	public function rememberLast(Model $model, $options = array()) {
-		list($id, $table) = $this->_getSrcIdAndTableName($model, $options);
-		$conditions = array(
-			'Backup.table_name' => $table,
-			'Backup.src_id' => $id,
-		);
-		$order = 'Backup.id DESC';
-		$lastBackup = $this->Backup->find('first', compact('conditions', 'order'));
-		if (empty($lastBackup['Backup']['data'])) {
-			return array();
-		}
-		$lastBackup['Backup']['data'] = unserialize($lastBackup['Backup']['data']);
-		return $lastBackup;
+		return $this->Backup->rememberLast($model, $options);
 	}
 
 /**
- * Restore the record by backup data.
- * If the table name, source id and backup id are not matched, it returns false.
+ * wrapper of BackupEngine::restore()
+ *
  * Options:
  *   'backupId' -- required
  *   'id' -------- option (if it is empty, the method searches $model->id)
@@ -227,38 +163,7 @@ class BackupableBehavior extends ModelBehavior
  * @param array
  */
 	public function restore(Model $model, $options = array()) {
-		$restore = $this->remember($model, $options);
-		if (empty($restore)) {
-			return false;
-		}
-		$model->id = $restore['Backup']['data'][$model->primaryKey];
-		return $model->save(array($model->alias => $restore['Backup']['data']));
-	}
-
-	protected function _getSrcId(Model $model, $options = array()) {
-		if (is_int($options) || is_string($options)) {
-			$id = $options;
-		} elseif (isset($options['id'])) {
-			$id = $options['id'];
-		} elseif (isset($model->id)) {
-			$id = $model->id;
-		} else {
-			$id = null;
-		}
-		return $id;
-	}
-
-	protected function _getTableName($model) {
-		if ($model->tablePrefix) {
-			$table = $model->tablePrefix . $model->useTable;
-		} else {
-			$table = ConnectionManager::$config->{$model->useDbConfig}['prefix'] . $model->useTable;
-		}
-		return $table;
-	}
-
-	protected function _getSrcIdAndTableName(Model $model, $options = array()) {
-		return array($this->_getSrcId($model, $options), $this->_getTableName($model));
+		return $this->Backup->restore($model, $options);
 	}
 
 }
