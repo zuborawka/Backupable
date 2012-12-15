@@ -158,7 +158,7 @@ echo $this->Html->link(
 ````
 
 ##<a name="section6">6.Some options.
-You can set 5 options.
+You can set 5 type options.
 
 * "backupFields" array default null. Null means all fields.
 * "autoSave" boolean default true
