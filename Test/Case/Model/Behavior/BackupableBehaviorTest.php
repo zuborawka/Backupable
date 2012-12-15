@@ -43,7 +43,7 @@ class BackupableBehaviorTest extends CakeTestCase
 			$history = $this->Sample->history();
 			$expected = 1;
 			$result = count($history);
-			$this->assertEquals($expected, $result);
+			$this->assertEquals($expected, $result, 'Expected = ' . $expected . ', Result = ' . $result);
 		}
 
 		$first = $this->Sample->find();
@@ -143,7 +143,7 @@ class BackupableBehaviorTest extends CakeTestCase
 		$history = $this->Sample->history();
 		$expected = 1;
 		$result = count($history);
-		$this->assertEquals($expected, $result);
+		$this->assertEquals($expected, $result, 'Expected = ' . $expected . ', Result = ' . $result);
 	}
 
 	public function testMulitipleModelsAccess()
@@ -185,6 +185,24 @@ class BackupableBehaviorTest extends CakeTestCase
 		$rec = $this->AnotherSample->read();
 		$expected = $anotherMessages[0];
 		$result = $rec['AnotherSample']['message'];
+		$this->assertEquals($expected, $result);
+	}
+
+	public function testUseInvalidEngine()
+	{
+		ClassRegistry::removeObject('Sample');
+		Configure::write('Backupable.BackupEngine', 'InvalidBackupEngine');
+		$sample = ClassRegistry::init('Sample');
+		$exception = null;
+		try{
+			$sample -> save($this->SampleRecord->create());
+		} catch (Exception $e) {
+			$exception = $e;
+		}
+
+		$expected = true;
+		$result = $exception instanceof CakeException;
+
 		$this->assertEquals($expected, $result);
 	}
 }
@@ -250,4 +268,12 @@ class SampleNotSkipSame extends Sample
 class AnotherSample extends Sample
 {
 	public $useTable = 'another_samples';
+}
+
+/**
+ * InvalidEngine
+ * This is not implemented BackupEngine interface.
+ */
+class InvalidBackupEngine
+{
 }
