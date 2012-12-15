@@ -18,7 +18,8 @@ But this plugin is more simple and fewer function.
 
 ##<a name="section1">1.Set files into your plugin directory.
 - app/Plugin/Backupable/Model/BackupableAppModel.php
-- app/Plugin/Backupable/Model/Backup.php
+- app/Plugin/Backupable/Model/BasicBackup.php
+- app/Plugin/Backupable/Model/Interface/BackupEngine.php
 - app/Plugin/Backupable/Model/Behavior/BackupableBehavior.php
 
 
@@ -35,8 +36,8 @@ CREATE TABLE `backups` (
   KEY `table_and_src_id` (`table_name`,`src_id`,`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 ````
-This table is associated with Backup class.
-So, you can change the table name by setting in Backupable/Model/Backup.php.
+This table is associated with BasicBackup class.
+So, you can change the table name by setting in Backupable/Model/BasicBackup.php.
 
 ##<a name="section3">3.Set your bootstrap.php to load plugin.
 
