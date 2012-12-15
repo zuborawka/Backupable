@@ -36,25 +36,23 @@ class BackupableBehavior extends ModelBehavior
 	}
 
 	protected function _getBackupEngine($class = null) {
-		if (!$class) {
-			if (! ($class = Configure::read('Backupable.BackupEngine'))) {
-				$class = $this->backupEngineClass;
-			}
-			if (is_string($class)) {
-				$class = array('class' => $class);
-			}
-			if (empty($class['alias'])) {
-				if (! ($alias = Configure::read('Backupable.BackupEngineAlias'))) {
-					$alias = $this->backupEngineAlias;
-				}
-				$class['alias'] = $alias;
-			}
-			$backupEngine = ClassRegistry::init($class);
-			if (! $backupEngine instanceof BackupEngine) {
-				throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
-			}
-			return $backupEngine;
+		if (! ($class = Configure::read('Backupable.BackupEngine'))) {
+			$class = $this->backupEngineClass;
 		}
+		if (is_string($class)) {
+			$class = array('class' => $class);
+		}
+		if (empty($class['alias'])) {
+			if (! ($alias = Configure::read('Backupable.BackupEngineAlias'))) {
+				$alias = $this->backupEngineAlias;
+			}
+			$class['alias'] = $alias;
+		}
+		$backupEngine = ClassRegistry::init($class);
+		if (! $backupEngine instanceof BackupEngine) {
+			throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
+		}
+		return $backupEngine;
 	}
 
 /**
