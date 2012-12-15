@@ -2,7 +2,7 @@ Backupable Plugin for CakePHP2.x
 ==========
 
 # What is this?
-A plugin to backup and restore records for cakephp2.x, record by record.
+A plugin to backup and restore records for cakephp2.x, row by row.
 
 ## What is it like?
 It's like the WordPress revisions for automatic backup of an article.
