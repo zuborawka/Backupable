@@ -190,9 +190,7 @@ class BackupableBehaviorTest extends CakeTestCase
 
 	public function testUseInvalidEngine()
 	{
-		ClassRegistry::removeObject('Sample');
-		Configure::write('Backupable.BackupEngine', 'InvalidBackupEngine');
-		$sample = ClassRegistry::init('Sample');
+		$sample = ClassRegistry::init('InvalidSample');
 		$exception = null;
 		try{
 			$sample -> save($this->SampleRecord->create());
@@ -203,7 +201,7 @@ class BackupableBehaviorTest extends CakeTestCase
 		$expected = true;
 		$result = $exception instanceof CakeException;
 
-		$this->assertEquals($expected, $result);
+		$this->assertEquals($expected, $result, 'Expected = ' . $expected . ', Result = ' . $result);
 	}
 }
 
@@ -276,4 +274,18 @@ class AnotherSample extends Sample
  */
 class InvalidBackupEngine
 {
+}
+
+/**
+ * Using InvalidEngine
+ */
+class InvalidSample extends Sample
+{
+	public $useTable = 'samples';
+
+	public $actsAs = array(
+		'Backupuble.Backupable' => array(
+			'backupEngineClass' => 'InvalidBackupEngine',
+		),
+	);
 }

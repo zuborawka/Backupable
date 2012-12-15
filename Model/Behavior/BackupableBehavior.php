@@ -9,8 +9,6 @@ class BackupableBehavior extends ModelBehavior
 
 	public $settings = array();
 	public $mapMethods = array();
-	public $backupEngineClass = 'Backupable.BasicBackup';
-	public $backupEngineAlias = 'Backup';
 
 /**
  * The model could hold these properties for the behavior.
@@ -20,35 +18,23 @@ class BackupableBehavior extends ModelBehavior
 	protected $_defaultOptionProperties = array(
 		'autoBackup' => true,
 		'skipSame' => true,
+		'backupEngineClass' => 'Backupable.BasicBackup',
+		'backupEngineAlias' => 'Backup',
 	);
 
-	public function __get($name) {
-		if ($name === 'Backup') {
-			$this->Backup = $this->_getBackupEngine();
-			return $this->Backup;
-		}
-	}
+	protected function _getBackupEngine(Model $model) {
+		if (empty($this->settings[$model->alias]['backupEngine'])) {
+			$class = $this->settings[$model->alias]['backupEngineClass'];
+			$alias = $this->settings[$model->alias]['backupEngineAlias'];
+			$backupEngine = ClassRegistry::init(array('class' => $class, 'alias' => $alias));
 
-	protected function _getBackupEngine($class = null) {
-		if (!$class) {
-			if (! ($class = Configure::read('Backupable.BackupEngine'))) {
-				$class = $this->backupEngineClass;
+			if (! $backupEngine instanceof BackupEngine) {
+				throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
 			}
+
+			$this->settings[$model->alias]['backupEngine'] = $backupEngine;
 		}
-		if (is_string($class)) {
-			$class = array('class' => $class);
-		}
-		if (empty($class['alias'])) {
-			if (! ($alias = Configure::read('Backupable.BackupEngineAlias'))) {
-				$alias = $this->backupEngineAlias;
-			}
-			$class['alias'] = $alias;
-		}
-		$backupEngine = ClassRegistry::init($class);
-		if (! $backupEngine instanceof BackupEngine) {
-			throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
-		}
-		return $backupEngine;
+		return $this->settings[$model->alias]['backupEngine'];
 	}
 
 /**
@@ -111,7 +97,7 @@ class BackupableBehavior extends ModelBehavior
  */
 	public function backup(Model $model, $options = array()) {
 		$options['settings'] = $this->settings[$model->alias];
-		return $this->Backup->backup($model, $options);
+		return $this->_getBackupEngine($model)->backup($model, $options);
 	}
 
 /**
@@ -124,7 +110,7 @@ class BackupableBehavior extends ModelBehavior
  * @return array
  */
 	public function history(Model $model, $options = array()) {
-		return $this->Backup->history($model, $options);
+		return $this->_getBackupEngine($model)->history($model, $options);
 	}
 
 /**
@@ -138,7 +124,7 @@ class BackupableBehavior extends ModelBehavior
  * @param array
  */
 	public function remember(Model $model, $options = array()) {
-		return $this->Backup->remember($model, $options);
+		return $this->_getBackupEngine($model)->remember($model, $options);
 	}
 
 /**
@@ -149,7 +135,7 @@ class BackupableBehavior extends ModelBehavior
  * @return array
  */
 	public function rememberLast(Model $model, $options = array()) {
-		return $this->Backup->rememberLast($model, $options);
+		return $this->_getBackupEngine($model)->rememberLast($model, $options);
 	}
 
 /**
@@ -163,7 +149,7 @@ class BackupableBehavior extends ModelBehavior
  * @param array
  */
 	public function restore(Model $model, $options = array()) {
-		return $this->Backup->restore($model, $options);
+		return $this->_getBackupEngine($model)->restore($model, $options);
 	}
 
 }
