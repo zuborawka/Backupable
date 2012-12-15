@@ -36,8 +36,10 @@ class BackupableBehavior extends ModelBehavior
 	}
 
 	protected function _getBackupEngine($class = null) {
-		if (! ($class = Configure::read('Backupable.BackupEngine'))) {
-			$class = $this->backupEngineClass;
+		if (!class) {
+			if (! ($class = Configure::read('Backupable.BackupEngine'))) {
+				$class = $this->backupEngineClass;
+			}
 		}
 		if (is_string($class)) {
 			$class = array('class' => $class);
