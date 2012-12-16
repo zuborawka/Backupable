@@ -1,8 +1,9 @@
 <?php
 App::uses('BackupableAppModel', 'Backupable.Model');
 /**
- * Backup Model
- *
+ * BasicBackup Model
+ * 
+ * It's a very simple model that implemented BackupEngine interface.'
  */
 class BasicBackup extends BackupableAppModel {
 
