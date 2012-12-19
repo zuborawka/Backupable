@@ -9,14 +9,21 @@ It's like the WordPress revisions for automatic backup of an article.
 But this plugin is more simple and fewer function.
 
 ## How to use?
-1. [Set files into your plugin directory.](#section1)
+1. [Installation](#section1)
 2. [Create a table for backup records.](#section2)
 3. [Set your bootstrap.php to load plugin.](#section3)
 4. [Set your Model file to act as "Backupable".](#section4)
 5. [API and usage](#section5)
 6. [Some options](#section6)
 
-##<a name="section1">1.Set files into your plugin directory.
+##<a name="section1">1.Installation
+Clone it to your plugin directory.
+```console
+cd path/to/app/Plugin or /plugins
+git clone git@github.com:Zuborawka/Backupable.git Backupable
+cd Chosen
+```
+Or set files into your plugin directory.
 - app/Plugin/Backupable/Model/BackupableAppModel.php
 - app/Plugin/Backupable/Model/BasicBackup.php
 - app/Plugin/Backupable/Model/Interface/BackupEngine.php
