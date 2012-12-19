@@ -21,7 +21,6 @@ Clone it to your plugin directory.
 ```console
 cd path/to/app/Plugin or /plugins
 git clone git@github.com:Zuborawka/Backupable.git Backupable
-cd Chosen
 ```
 Or set files into your plugin directory.
 - app/Plugin/Backupable/Model/BackupableAppModel.php
