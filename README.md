@@ -15,6 +15,7 @@ But this plugin is more simple and fewer function.
 4. [Set your Model file to act as "Backupable".](#section4)
 5. [API and usage](#section5)
 6. [Some options](#section6)
+-. [To do](#section-)
 
 ##<a name="section1">1.Installation
 Clone it to your plugin directory.
@@ -189,3 +190,8 @@ public $actsAs = array(
     ),
 );
 ````
+##<a name="section-">-.To do
+
+* Drop record interface
+* View helper class
+* Another backup engine class
