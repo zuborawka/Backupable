@@ -234,10 +234,10 @@ class BackupableBehaviorTest extends CakeTestCase
 
 
 		$this->Sample->delete($id1);
-		$sample		 ->delete($id2);
+		$sample      ->delete($id2);
 
 		$history1 = $this->Sample->history($id1);
-		$history2 = $sample		 ->history($id2);
+		$history2 = $sample      ->history($id2);
 
 		$expected1 = $num;
 		$result1 = count($history1);
