@@ -2,7 +2,7 @@
 App::uses('BackupableAppModel', 'Backupable.Model');
 /**
  * BasicBackup Model
- * 
+ *
  * It's a very simple model that implemented BackupEngine interface.'
  */
 class BasicBackup extends BackupableAppModel {
@@ -188,6 +188,18 @@ class BasicBackup extends BackupableAppModel {
 		}
 		$model->id = $restore[$this->alias]['data'][$model->primaryKey];
 		return $model->save(array($model->alias => $restore[$this->alias]['data']));
+	}
+
+/**
+ *
+ */
+	public function removeBackups(Model $model, $options = array()) {
+		list($id, $table) = $this->_getSrcIdAndTableName($model, $options);
+		$conditions = array(
+			$this->alias . '.table_name' => $table,
+			$this->alias . '.src_id' => $id,
+		);
+		return $this->deleteAll($conditions);
 	}
 
 	protected function _getSrcId(Model $model, $options = array()) {

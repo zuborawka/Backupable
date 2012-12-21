@@ -7,8 +7,8 @@ class BackupableBehaviorTest extends CakeTestCase
 
 	public $Sample = null;
 	public $SampleRecord = null;
-	public $SampleNotSkipSame = null;
-	public $AnotherSample = null;
+	public $Sample_skipSame_is_false = null;
+	public $Sample_use_another_table = null;
 
 	public $fixtures = array(
 		'plugin.Backupable.backup',
@@ -20,13 +20,13 @@ class BackupableBehaviorTest extends CakeTestCase
 	{
 		parent::setUp();
 		$this->Sample = ClassRegistry::init('Backupable.Sample');
-		$this->AnotherSample = ClassRegistry::init('Backupable.AnotherSample');
+		$this->Sample_use_another_table = ClassRegistry::init('Backupable.Sample_use_another_table');
 		$this->SampleRecord = new SampleRecord();
 	}
 
 	public function tearDown()
 	{
-		unset($this->Sample, $this->SampleRecord, $this->SampleNotSkipSame);
+		unset($this->Sample, $this->SampleRecord, $this->Sample_skipSame_is_false);
 		parent::tearDown();
 	}
 
@@ -125,12 +125,12 @@ class BackupableBehaviorTest extends CakeTestCase
 	public function testSkipSame()
 	{
 		// set option "skipSame" false
-		$this->SampleNotSkipSame = ClassRegistry::init('SampleNotSkipSame');
-		$this->SampleNotSkipSame->create();
-		$SampleNotSkipSame = $this->SampleRecord->create(array('id' => 1));
-		$this->SampleNotSkipSame->save(compact('SampleNotSkipSame'));
-		$this->SampleNotSkipSame->save(compact('SampleNotSkipSame'));
-		$history = $this->SampleNotSkipSame->history();
+		$this->Sample_skipSame_is_false = ClassRegistry::init('Backupable.Sample_skipSame_is_false');
+		$this->Sample_skipSame_is_false->create();
+		$Sample_skipSame_is_false = $this->SampleRecord->create(array('id' => 1));
+		$this->Sample_skipSame_is_false->save(compact('Sample_skipSame_is_false'));
+		$this->Sample_skipSame_is_false->save(compact('Sample_skipSame_is_false'));
+		$history = $this->Sample_skipSame_is_false->history();
 		$expected = 2;
 		$result = count($history);
 		$this->assertEquals($expected, $result);
@@ -161,14 +161,14 @@ class BackupableBehaviorTest extends CakeTestCase
 		);
 
 		$this->Sample->create();
-		$this->AnotherSample->create();
+		$this->Sample_use_another_table->create();
 
 		for ($i = 0; $i < 3; $i++) {
 			$Sample = $this->SampleRecord->create(array('id' => 1, 'message' => $messages[$i]));
 			$this->Sample->save(compact('Sample'));
 
-			$AnotherSample = $this->SampleRecord->create(array('id' => 1, 'message' => $anotherMessages[$i]));
-			$this->AnotherSample->save(compact('AnotherSample'));
+			$Sample_use_another_table = $this->SampleRecord->create(array('id' => 1, 'message' => $anotherMessages[$i]));
+			$this->Sample_use_another_table->save(compact('Sample_use_another_table'));
 		}
 
 		$history = $this->Sample->history();
@@ -179,21 +179,22 @@ class BackupableBehaviorTest extends CakeTestCase
 		$result = $rec['Sample']['message'];
 		$this->assertEquals($expected, $result);
 
-		$history = $this->AnotherSample->history();
+		$history = $this->Sample_use_another_table->history();
 		$oldest = array_pop($history);
-		$this->AnotherSample->restore(array('backupId' => $oldest['Backup']['id']));
-		$rec = $this->AnotherSample->read();
+		$this->Sample_use_another_table->restore(array('backupId' => $oldest['Backup']['id']));
+		$rec = $this->Sample_use_another_table->read();
 		$expected = $anotherMessages[0];
-		$result = $rec['AnotherSample']['message'];
+		$result = $rec['Sample_use_another_table']['message'];
 		$this->assertEquals($expected, $result);
 	}
 
 	public function testUseInvalidEngine()
 	{
-		$sample = ClassRegistry::init('InvalidSample');
+		$sample = ClassRegistry::init('Backupable.Sample_has_invalid_engine');
+		$append = $this->SampleRecord->create();
 		$exception = null;
 		try{
-			$sample -> save($this->SampleRecord->create());
+			$sample -> save($append);
 		} catch (Exception $e) {
 			$exception = $e;
 		}
@@ -202,6 +203,50 @@ class BackupableBehaviorTest extends CakeTestCase
 		$result = $exception instanceof CakeException;
 
 		$this->assertEquals($expected, $result, 'Expected = ' . $expected . ', Result = ' . $result);
+	}
+
+	public function testRemove()
+	{
+		// "dependent" option is false by default
+		$this->Sample->save($this->SampleRecord->create());
+		$id1 = $this->Sample->getInsertId();
+
+		// "dependent" option is true
+		$sample = ClassRegistry::init('Backupable.Sample_dependent_is_true');
+		$sample->save($this->SampleRecord->create());
+		$id2 = $sample->getInsertId();
+
+		$num = 5;
+
+		for ($i = 0; $i < $num - 1; $i++) {
+			$this->Sample->save($this->SampleRecord->create(array('id' => $id1)));
+			$sample		 ->save($this->SampleRecord->create(array('id' => $id2)));
+		}
+
+		$history1 = $this->Sample->history($id1);
+		$history2 = $sample		 ->history($id2);
+
+		$expected = $num;
+		$result1 = count($history1);
+		$result2 = count($history2);
+		$this->assertEquals($expected, $result1);
+		$this->assertEquals($expected, $result2);
+
+
+		$this->Sample->delete($id1);
+		$sample		 ->delete($id2);
+
+		$history1 = $this->Sample->history($id1);
+		$history2 = $sample		 ->history($id2);
+
+		$expected1 = $num;
+		$result1 = count($history1);
+
+		$expected2 = 0;
+		$result2 = count($history2);
+
+		$this->assertEquals($expected1, $result1);
+		$this->assertEquals($expected2, $result2);
 	}
 }
 
@@ -235,7 +280,7 @@ class SampleRecord
 			'title' => md5('Title' . $serial),
 			'message' => md5('Message' . $serial),
 			'user_id' => $serial * 10,
-			'created' => date('Y-m-d H:i:s', time() + $serial),
+			'created' => date('Y-m-d H:i:s', self::$baseTime + $serial),
 		);
 
 		$record = array_merge(
@@ -250,7 +295,7 @@ class SampleRecord
 /**
  * Sample model class for not using skipSame
  */
-class SampleNotSkipSame extends Sample
+class Sample_skipSame_is_false extends Sample
 {
 
 	public $useTable = 'samples';
@@ -261,9 +306,9 @@ class SampleNotSkipSame extends Sample
 }
 
 /**
- * AnotherSample
+ * Sample_use_another_table
  */
-class AnotherSample extends Sample
+class Sample_use_another_table extends Sample
 {
 	public $useTable = 'another_samples';
 }
@@ -279,7 +324,7 @@ class InvalidBackupEngine
 /**
  * Using InvalidEngine
  */
-class InvalidSample extends Sample
+class Sample_has_invalid_engine extends Sample
 {
 	public $useTable = 'samples';
 
@@ -287,5 +332,17 @@ class InvalidSample extends Sample
 		'Backupuble.Backupable' => array(
 			'backupEngineClass' => 'InvalidBackupEngine',
 		),
+	);
+}
+
+/**
+ * Sample model with 'dependent' option
+ */
+class Sample_dependent_is_true extends Sample
+{
+	public $useTable = 'samples';
+
+	public $backupConfig = array(
+		'dependent' => true,
 	);
 }

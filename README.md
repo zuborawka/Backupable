@@ -165,11 +165,12 @@ echo $this->Html->link(
 ````
 
 ##<a name="section6">6.Some options.
-You can set 5 type options.
+You can set 6 type options.
 
 * "backupFields" array default null. Null means all fields.
 * "autoSave" boolean default true
 * "skipSame" boolean default true
+* "dependent" boolean default false
 * "backupEngineClass" string default "Backupable.BasicBackup".
 * "backupEngineAlias" string default "Backup"
 
@@ -190,8 +191,32 @@ public $actsAs = array(
     ),
 );
 ````
+### "backupFields" option
+It specifies the list of fields to backup.
+Null means all fields.
+Default is null.
+
+### "autoSave" option
+If it is set true, the backup engine will save record automatically after the original was saved.
+Default is true
+
+### "skipSame" option
+If it is set true, the backup engine will skip saving backup record when the last record is same the current.
+Default is true
+
+### "dependent" option
+If it is set true, the backup engine will remove all records associated with the original.
+Default is false
+
+### "backupEngineClass" option
+It specifies the class for backup logic. The class must implement "Backupable.BackupEngine" interface.
+Default is "Backupable.BasicBackup"
+
+### "backupEngineAlias" option
+It specifies the alias of backup engine class.
+Default is "Backup"
+
 ##<a name="section-">-.To do
 
-* Drop record interface
 * View helper class
 * Another backup engine class

@@ -17,6 +17,7 @@ class BackupableBehavior extends ModelBehavior
  */
 	protected $_defaultOptionProperties = array(
 		'autoBackup' => true,
+		'dependent' => false,
 		'skipSame' => true,
 		'backupEngineClass' => 'Backupable.BasicBackup',
 		'backupEngineAlias' => 'Backup',
@@ -89,6 +90,19 @@ class BackupableBehavior extends ModelBehavior
 	}
 
 /**
+ * Callback after delete
+ * Remove the associated backup records, if "dependent" option is valid.
+ *
+ * @param Model
+ * @return void
+ */
+	public function afterDelete(Model $model) {
+		if ($this->settings[$model->alias]['dependent']) {
+			$this->removeBackups($model);
+		}
+	}
+
+/**
  * wrapper of BackupEngine::backup()
  *
  * @param Model
@@ -96,8 +110,24 @@ class BackupableBehavior extends ModelBehavior
  * @return array|false Created data. If it could not get ID, it returns false.
  */
 	public function backup(Model $model, $options = array()) {
-		$options['settings'] = $this->settings[$model->alias];
+		if (empty($options['settings'])) {
+			$options['settings'] = $this->settings[$model->alias];
+		}
 		return $this->_getBackupEngine($model)->backup($model, $options);
+	}
+
+/**
+ * wrapper of BackupEngine::removeBackups()
+ *
+ * @param Model
+ * @param array
+ * @return boolean
+ */
+	public function removeBackups(Model $model, $options = array()) {
+		if (empty($options['settings'])) {
+			$options['settings'] = $this->settings[$model->alias];
+		}
+		return $this->_getBackupEngine($model)->removeBackups($model, $options);
 	}
 
 /**
@@ -110,6 +140,16 @@ class BackupableBehavior extends ModelBehavior
  * @return array
  */
 	public function history(Model $model, $options = array()) {
+		if ($options && ! is_array($options)) {
+			if (is_numeric($options)) {
+				$options = array('id' => $options);
+			} else {
+				$options = (array)$options;
+			}
+		}
+		if (empty($options['settings'])) {
+			$options['settings'] = $this->settings[$model->alias];
+		}
 		return $this->_getBackupEngine($model)->history($model, $options);
 	}
 
@@ -124,6 +164,9 @@ class BackupableBehavior extends ModelBehavior
  * @param array
  */
 	public function remember(Model $model, $options = array()) {
+		if (empty($options['settings'])) {
+			$options['settings'] = $this->settings[$model->alias];
+		}
 		return $this->_getBackupEngine($model)->remember($model, $options);
 	}
 
@@ -135,6 +178,9 @@ class BackupableBehavior extends ModelBehavior
  * @return array
  */
 	public function rememberLast(Model $model, $options = array()) {
+		if (empty($options['settings'])) {
+			$options['settings'] = $this->settings[$model->alias];
+		}
 		return $this->_getBackupEngine($model)->rememberLast($model, $options);
 	}
 
@@ -149,6 +195,9 @@ class BackupableBehavior extends ModelBehavior
  * @param array
  */
 	public function restore(Model $model, $options = array()) {
+		if (empty($options['settings'])) {
+			$options['settings'] = $this->settings[$model->alias];
+		}
 		return $this->_getBackupEngine($model)->restore($model, $options);
 	}
 

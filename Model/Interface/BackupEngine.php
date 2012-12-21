@@ -78,4 +78,12 @@ interface BackupEngine {
  */
 	public function restore(Model $model, $options = array());
 
+/**
+ * It must remove the associated records.
+ *
+ * @param Model
+ * @param array
+ */
+	public function removeBackups(Model $model, $options = array());
+
 }
