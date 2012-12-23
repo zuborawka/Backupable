@@ -35,7 +35,7 @@ class historyTest extends CakeTestCase
 
 		$view = ob_get_clean();
 
-		$this->assertRegExp('/ class=[\'"]backup-history[ \'"]/', $view);
+		$this->assertRegExp('/ class=[\'"]backupHistory[ \'"]/', $view);
 	}
 
 }

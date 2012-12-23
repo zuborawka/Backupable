@@ -15,7 +15,7 @@ $_default = array(
 );
 extract($_default, EXTR_SKIP);
 ?>
-		<ul class="backup-history">
+		<ul class="backupHistory">
 <?php
 foreach ($history as $data):
 ?>
