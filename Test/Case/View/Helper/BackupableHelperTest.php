@@ -1,5 +1,5 @@
 <?php
-
+require_once('PHPUnit/Framework/IncompleteTestError.php');
 
 App::uses('View', 'View');
 App::uses('Controller', 'Controller');
@@ -10,7 +10,7 @@ App::uses('AppController', 'Controller');
 App::uses('BackupableHelper', 'Backupable.View/Helper');
 /**
  * BackupableHelperTest class
- * 
+ *
  * @package	Backupable.Test.Case.View.Helper
  */
 class BackupableHelperTest extends CakeTestCase {
@@ -27,10 +27,11 @@ class BackupableHelperTest extends CakeTestCase {
 	}
 
 	public function testHistory() {
-
+		throw new PHPUnit_Framework_IncompleteTestError('This method is not completed.');
 	}
 
 	public function testRemember() {
+		throw new PHPUnit_Framework_IncompleteTestError('This method is not completed.');
 	}
 
 
