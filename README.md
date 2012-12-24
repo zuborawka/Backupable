@@ -28,6 +28,7 @@ Or set files into your plugin directory.
 - app/Plugin/Backupable/Model/BasicBackup.php
 - app/Plugin/Backupable/Model/Interface/BackupEngine.php
 - app/Plugin/Backupable/Model/Behavior/BackupableBehavior.php
+- app/Plugin/Backupable/View/Elements/history.ctp
 
 
 ##<a name="section2">2.Create a table for backup records.
@@ -136,6 +137,10 @@ class PostsController extends AppController {
         )); ?></li>
 <?php endforeach; ?>
 </ul>
+````
+It helps you write a list of history in view to use Backupable.history element.
+````
+echo $this->element('Backupable.history');
 ````
 
 ````php:app/View/Posts/remember.ctp
