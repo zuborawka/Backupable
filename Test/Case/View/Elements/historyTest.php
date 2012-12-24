@@ -8,6 +8,7 @@ class historyTest extends CakeTestCase
 {
 
 	public $request;
+	public $View;
 	public $Html;
 	public $element;
 	public $dataProvider;
@@ -21,7 +22,7 @@ class historyTest extends CakeTestCase
 	}
 
 	public function tearDown() {
-		unset($this->request, $this->Html, $this->element, $this->dataProvider);
+		unset($this->request, $this->View, $this->Html, $this->element, $this->dataProvider);
 	}
 
 	public function testView() {
