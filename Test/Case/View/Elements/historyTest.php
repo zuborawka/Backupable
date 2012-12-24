@@ -25,17 +25,63 @@ class historyTest extends CakeTestCase
 	}
 
 	public function testView() {
-		$this->request->params['pass'][0] = 123;
+		$id = 1234;
+		$this->request->params['pass'][0] = $id;
+		$src = array(
+			array('id' => 100, 'created' => '2012-12-12 12:12:12'),
+			array('id' =>  50, 'created' => '2011-11-11 11:11:11'),
+			array('id' =>  10, 'created' => '2010-10-10 10:10:10'),
+		);
 		$history = array();
-		$history[] = $this->dataProvider->data();
+		foreach ($src as $_src) {
+			$history[] = $this->dataProvider->data($_src);
+		}
 
 		ob_start();
-
 		include($this->element);
-
 		$view = ob_get_clean();
 
-		$this->assertRegExp('/ class=[\'"]backupHistory[ \'"]/', $view);
+		$xml = simplexml_load_string($view);
+		$attributes = $xml->attributes();
+		$li = $xml->li;
+		$classes = explode(' ', $attributes['class']);
+
+		$result = in_array('backupHistory', $classes);
+		$this->assertTrue($result);
+
+		$expected = count($history);
+		$result = count($li);
+		$this->assertEquals($expected, $result);
+
+		$i = 0;
+		foreach ($li as $_li) {
+
+			$_src = $src[$i];
+
+			$expected = $_src['created'];
+			$result = (string)$_li->a;
+			$this->assertEquals($expected, $result);
+
+			$aAttributes = $_li->a->attributes();
+			$expected = $this->Html->url(array('action' => 'remember', $id, $_src['id']));
+			$result = $aAttributes['href'];
+			$this->assertEquals($expected, $result);
+
+			$expected = (string)$id;
+			$result = $aAttributes['data-id'];
+			$this->assertEquals($expected, $result);
+
+			$expected = (string)$_src['id'];
+			$result = $aAttributes['data-backup-id'];
+			$this->assertEquals($expected, $result);
+
+			$expected = 'rememberBackup';
+			$result = $aAttributes['class'];
+			$this->assertEquals($expected, $result);
+
+			$i++;
+		}
+
 	}
 
 }
