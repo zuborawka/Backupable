@@ -15,6 +15,10 @@ App::uses('BackupableHelper', 'Backupable.View/Helper');
  */
 class BackupableHelperTest extends CakeTestCase {
 
+	public $Controller;
+	public $View;
+	public $Helper;
+
 	public function setUp() {
 		parent::setUp();
 		$this->Controller = new SamplesController(new CakeRequest(), new CakeResponse());
@@ -24,6 +28,7 @@ class BackupableHelperTest extends CakeTestCase {
 
 	public function tearDown() {
 		unset($this->Controller, $this->View, $this->Helper);
+		parent::tearDown();
 	}
 
 	public function testHistory() {

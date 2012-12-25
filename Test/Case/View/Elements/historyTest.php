@@ -8,12 +8,12 @@ class historyTest extends CakeTestCase
 {
 
 	public $request;
-	public $View;
 	public $Html;
 	public $element;
 	public $dataProvider;
 
 	public function setUp() {
+		parent::setUp();
 		$this->request = new CakeRequest();
 		$this->View = $this->getMock('View', array('append'), array(new TheHtmlTestController()));
 		$this->Html = new HtmlHelper($this->View);
@@ -22,7 +22,8 @@ class historyTest extends CakeTestCase
 	}
 
 	public function tearDown() {
-		unset($this->request, $this->View, $this->Html, $this->element, $this->dataProvider);
+		unset($this->request, $this->Html, $this->element, $this->dataProvider);
+		parent::tearDown();
 	}
 
 	public function testView() {
