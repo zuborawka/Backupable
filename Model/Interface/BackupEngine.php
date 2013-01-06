@@ -86,4 +86,16 @@ interface BackupEngine {
  */
 	public function removeBackups(Model $model, $options = array());
 
+/**
+ * It must return a property specified by the parameter.
+ * If $throws is true, it must throw InvalidArgumentException when undefined property was specified.
+ *
+ * @param Model
+ * @param string
+ * @param boolean
+ * @return mixed
+ * @throws InvalidArgumentException
+ */
+	public function getProperty(Model $model, $propertyName, $throws = false);
+
 }

@@ -20,7 +20,6 @@ class BackupableBehaviorTest extends CakeTestCase
 	{
 		parent::setUp();
 		$this->Sample = ClassRegistry::init('Backupable.Sample');
-		$this->Sample_use_another_table = ClassRegistry::init('Backupable.Sample_use_another_table');
 		$this->SampleRecord = new SampleRecord();
 	}
 
@@ -161,6 +160,7 @@ class BackupableBehaviorTest extends CakeTestCase
 		);
 
 		$this->Sample->create();
+		$this->Sample_use_another_table = ClassRegistry::init('Backupable.Sample_use_another_table');
 		$this->Sample_use_another_table->create();
 
 		for ($i = 0; $i < 3; $i++) {
@@ -247,6 +247,21 @@ class BackupableBehaviorTest extends CakeTestCase
 
 		$this->assertEquals($expected1, $result1);
 		$this->assertEquals($expected2, $result2);
+	}
+
+	public function testGetBackupEngineProperty()
+	{
+		$result = $this->Sample->getBackupEngineProperty('name');
+		$expected = 'BasicBackup';
+		$this->assertEquals($expected, $result);
+	}
+
+	public function testCustomizeDbConfig()
+	{
+		$Sample = ClassRegistry::init('Backupable.Sample_for_customizing_useDbConfig');
+		$result = $Sample->getBackupEngineProperty('useDbConfig');
+		$expected = 'another_db';
+		$this->assertEquals($expected, $result, "Expected:" . $expected . ", Result:" . $result);
 	}
 }
 
@@ -344,5 +359,21 @@ class Sample_dependent_is_true extends Sample
 
 	public $backupConfig = array(
 		'dependent' => true,
+	);
+}
+
+/**
+ * Sample model for customizing useDbConfig of BackupEngine
+ */
+class Sample_for_customizing_useDbConfig extends Sample
+{
+	public $useTable = 'samples';
+
+	public $actsAs = array(
+		'Backupuble.Backupable' => array(
+			'backupEngineConfig' => array(
+				'useDbConfig' => 'another_db',
+			),
+		),
 	);
 }

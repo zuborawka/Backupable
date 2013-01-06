@@ -21,6 +21,7 @@ class BackupableBehavior extends ModelBehavior
 		'skipSame' => true,
 		'backupEngineClass' => 'Backupable.BasicBackup',
 		'backupEngineAlias' => 'Backup',
+		'backupEngineConfig' => null,
 	);
 
 	protected function _getBackupEngine(Model $model) {
@@ -31,6 +32,15 @@ class BackupableBehavior extends ModelBehavior
 
 			if (! $backupEngine instanceof BackupEngine) {
 				throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
+			}
+
+			pp($this->settings, $model->alias);
+
+			if (!empty($this->settings[$model->alias]['backupEngineConfig']) &&
+				is_array($this->settings[$model->alias]['backupEngineConfig'])) {
+				foreach ($this->settings[$model->alias]['backupEngineConfig'] as $configName => $config) {
+					$backupEngine->$configName = $config;
+				}
 			}
 
 			$this->settings[$model->alias]['backupEngine'] = $backupEngine;
@@ -199,6 +209,19 @@ class BackupableBehavior extends ModelBehavior
 			$options['settings'] = $this->settings[$model->alias];
 		}
 		return $this->_getBackupEngine($model)->restore($model, $options);
+	}
+
+/**
+ * wrappe of BackupEngine::getProperty
+ *
+ * @param Model
+ * @param string
+ * @param boolean
+ * @return mixed
+ * @throws InvalidArgumentException
+ */
+	public function getBackupEngineProperty(Model $model, $propertyName, $throws = false) {
+		return $this->_getBackupEngine($model)->getProperty($model, $propertyName, $throws);
 	}
 
 }

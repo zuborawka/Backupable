@@ -43,12 +43,6 @@ class BackupableHelperTest extends CakeTestCase {
 
 }
 
-class Sample extends AppModel {
-
-	public $actsAs = array('Backupable.Backupable');
-
-}
-
 class SamplesController extends AppController {
 
 	public $helpers = array('Backupable.Backupable');

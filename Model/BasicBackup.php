@@ -1,11 +1,11 @@
 <?php
-App::uses('BackupableAppModel', 'Backupable.Model');
+App::uses('BaseOfBackupEngine', 'Backupable.Model');
 /**
  * BasicBackup Model
  *
  * It's a very simple model that implemented BackupEngine interface.'
  */
-class BasicBackup extends BackupableAppModel {
+class BasicBackup extends BaseOfBackupEngine {
 
 	public $useTable = 'backups';
 
