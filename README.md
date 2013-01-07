@@ -170,7 +170,7 @@ echo $this->Html->link(
 ````
 
 ##<a name="section6">6.Some options.
-You can set 6 type options.
+You can set 7 type options.
 
 * "backupFields" array default null. Null means all fields.
 * "autoSave" boolean default true
@@ -178,6 +178,7 @@ You can set 6 type options.
 * "dependent" boolean default false
 * "backupEngineClass" string default "Backupable.BasicBackup".
 * "backupEngineAlias" string default "Backup"
+* "backupEngineConfig" string
 
 e.g.)
 
@@ -220,6 +221,9 @@ Default is "Backupable.BasicBackup"
 ### "backupEngineAlias" option
 It specifies the alias of backup engine class.
 Default is "Backup"
+
+### "backupEngineConfig" option
+It specifies the properties of BackupEngine instance.
 
 ##<a name="section-">-.To do
 
