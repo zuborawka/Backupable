@@ -194,6 +194,9 @@ public $actsAs = array(
         'skipSame' => false,
         'backupEngineClass' => 'MyCoolBackup',
         'backupEngineAlias' => 'SoCoolBackup',
+        'backupConfig' => array(
+            'useDbConfig' => 'backup_db',
+        ),
     ),
 );
 ````
