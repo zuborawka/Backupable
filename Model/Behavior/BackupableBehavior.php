@@ -34,8 +34,6 @@ class BackupableBehavior extends ModelBehavior
 				throw new CakeException(get_class($backupEngine) . ' must be instance of BackupEngine. But it isn\'t it.');
 			}
 
-			pp($this->settings, $model->alias);
-
 			if (!empty($this->settings[$model->alias]['backupEngineConfig']) &&
 				is_array($this->settings[$model->alias]['backupEngineConfig'])) {
 				foreach ($this->settings[$model->alias]['backupEngineConfig'] as $configName => $config) {
