@@ -178,7 +178,7 @@ You can set 7 type options.
 * "dependent" boolean default false
 * "backupEngineClass" string default "Backupable.BasicBackup".
 * "backupEngineAlias" string default "Backup"
-* "backupEngineConfig" string
+* "backupConfig" string
 
 e.g.)
 
@@ -222,7 +222,7 @@ Default is "Backupable.BasicBackup"
 It specifies the alias of backup engine class.
 Default is "Backup"
 
-### "backupEngineConfig" option
+### "backupConfig" option
 It specifies the properties of BackupEngine instance.
 
 ##<a name="section-">-.To do
