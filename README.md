@@ -151,9 +151,9 @@ echo $this->element('Backupable.history');
 <h2>Do you restore the record?</h2>
 <dl>
     <dt>Title</dt>
-    <dd><?php echo $remember['Backup']['data']['title']; ?></dd>
+    <dd><?php echo h($remember['Backup']['data']['title']); ?></dd>
     <dt>Content</dt>
-    <dt><?php echo $remember['Backup']['data']['content']; ?></dt>
+    <dt><?php echo h($remember['Backup']['data']['content']); ?></dt>
 </dl>
 <p>
 <?php
