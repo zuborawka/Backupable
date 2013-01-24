@@ -14,7 +14,7 @@ class BackupFixture extends CakeTestFixture {
 		'id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 10, 'key' => 'primary'),
 		'table_name' => array('type' => 'string', 'null' => false, 'default' => null, 'key' => 'index', 'collate' => 'ascii_general_ci', 'charset' => 'ascii'),
 		'src_id' => array('type' => 'integer', 'null' => false, 'default' => null, 'length' => 10),
-		'data' => array('type' => 'text', 'null' => false, 'default' => null, 'collate' => 'utf8_general_ci', 'charset' => 'utf8'),
+		'data' => array('type' => 'binary', 'null' => false, 'default' => null),
 		'created' => array('type' => 'timestamp', 'null' => true, 'default' => null),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1),

@@ -38,7 +38,7 @@ CREATE TABLE `backups` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `table_name` varchar(255) CHARACTER SET ascii NOT NULL,
   `src_id` int(10) unsigned NOT NULL,
-  `data` text NOT NULL,
+  `data` longblob NOT NULL,
   `created` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `table_and_src_id` (`table_name`,`src_id`,`id`)
