@@ -218,13 +218,13 @@ class BackupableBehaviorTest extends CakeTestCase
 
 		$num = 5;
 
-		for ($i = 0; $i < $num - 1; $i++) {
+		for ($i = 1; $i < $num; $i++) {
 			$this->Sample->save($this->SampleRecord->create(array('id' => $id1)));
-			$sample		 ->save($this->SampleRecord->create(array('id' => $id2)));
+			$sample      ->save($this->SampleRecord->create(array('id' => $id2)));
 		}
 
 		$history1 = $this->Sample->history($id1);
-		$history2 = $sample		 ->history($id2);
+		$history2 = $sample      ->history($id2);
 
 		$expected = $num;
 		$result1 = count($history1);
