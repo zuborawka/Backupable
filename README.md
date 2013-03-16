@@ -1,5 +1,6 @@
 Backupable Plugin for CakePHP2.x
 ==========
+Japanese article is here > http://blog.xao.jp/blog/cakephp/how-to-use-backupable-plugin/
 
 # What is this?
 A plugin to backup and restore records for cakephp2.x, row by row.
